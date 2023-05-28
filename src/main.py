@@ -1,6 +1,7 @@
 import pandas as pd
 import datasets
 import json
+import os
 
 """
 results = pipeline(
@@ -21,29 +22,64 @@ results = pipeline(
 )
 """
 
+# sys_msg = "Respond only positive or negative sentiment: "
+def create_chat_prompt(sys_msg, input_text):
+    return [
+        {"role": "system", "content": sys_msg}, 
+        {"role": "user", "content": input_text}
+    ]
+
+def create_chat_example(content, label):
+    return [
+        {"role": "system", "content": content, "name": "example_user"},
+        {"role": "system", "content": label, "name": "example_assistant"},
+    ]
+
 
 def pipeline(
+    input_column_name,
+    target_column_name,
+    prompt,
+    api_key,
+    data_dir='.',
     dataset_name="arbml/easc",
     preprocessing_fn=None,
     train_split="train",
     test_split=None,
     records_path="easc.jsonl",
+    threads = 1,
+    threads_timeout=100,
 ):
+    
     train_dataset = datasets.load_dataset(dataset_name, split=train_split)
     if test_split is not None:
         test_dataset = datasets.load_dataset(dataset_name, split=test_split)
+
+    if resume_from_records:
+        success_ids = get_success_record_ids(records_path=records_path)
+        unsuccess_ids = set(range(len(test_dataset))) - set(success_ids)
+        test_dataset = test_dataset.select(unsuccess_ids)
+    print(test_dataset)
 
     # preprocess the dataset
     if preprocessing_fn is not None:
         train_dataset = train_dataset.map(preprocessing_fn)
         test_dataset = test_dataset.map(preprocessing_fn)
 
+    dev_df = train_dataset.to_pandas()
+    dev_df["sample"] = dev_df.apply(lambda x: create_chat_example(x[input_column_name], x[target_column_name]), axis=1)
+    dev_df[["sample"]].to_json(f'{data_dir}/few_shot.jsonl', lines=True, orient="records",force_ascii=False)
+
+    test_df = test_split
+    test_df["input"] = test_df[input_column_name].apply(lambda x: create_chat_prompt(prompt, x))
+    test_df["ideal"] = test_df[target_column_name]
+    test_df[["input", "ideal"]].to_json(f'{data_dir}/samples.jsonl', lines=True, orient="records",force_ascii=False)
+
+    os.environ["OPENAI_API_KEY"] = api_key
+    os.environ["EVALS_THREADS"]=f"{threads}"
+    os.environ["EVALS_THREAD_TIMEOUT"]=f"{threads_timeout}"
+
     resume_from_records = True
-    if resume_from_records:
-        success_ids = get_success_record_ids(records_path=records_path)
-        unsuccess_ids = set(range(len(test_dataset))) - set(success_ids)
-        test_dataset = test_dataset.select(unsuccess_ids)
-    print(test_dataset)
 
 
 def get_success_record_ids(records_path):
