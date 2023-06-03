@@ -7,7 +7,7 @@ from datasets import Value
 
 metrics = {'classification':['accuracy']}
 
-BASE_PATH = "/home/zaid/.evals"
+BASE_PATH = Path.home()/".evals"
 
 # sys_msg = "Respond only positive or negative sentiment: "
 def create_chat_prompt(sys_msg, input_text):
@@ -22,7 +22,7 @@ def create_chat_example(content, label):
         {"role": "system", "content": label, "name": "example_assistant"},
     ]
 
-def merge_evals(task_class, eval_name, evals_record_paths =[], max_samples = -1, ):
+def merge_evals(task_class, eval_name, evals_record_paths =[]):
     out_records = []
     curr_sample_id = 0
     curr_event_id = 0 
@@ -46,7 +46,6 @@ def merge_evals(task_class, eval_name, evals_record_paths =[], max_samples = -1,
                 sample_id_record_copy = {}
                 for sample_id_record in sample_id_records:
                     sample_id_record_copy = dict(sample_id_record) # don't modify a dict inside a for loop 
-                    record_id = int(sample_id_record['sample_id'].split('.')[-1])
                     sample_id_record_copy['sample_id'] = f"{eval_name}.test.{curr_sample_id}"
                     sample_id_record_copy['event_id'] = curr_event_id
                     curr_event_id += 1
@@ -58,7 +57,7 @@ def merge_evals(task_class, eval_name, evals_record_paths =[], max_samples = -1,
     for record in out_records:
         if 'type' in record and record['type'] == task_class:
             for metric in task_metrics:
-                final_report[metric] += record["data"][metric] / max_samples # what happens if there are repeated samples ?:
+                final_report[metric] += record["data"][metric] / curr_sample_id # what happens if there are repeated samples ?:
 
     out_records.append({'final_report':final_report})
     return out_records
@@ -133,11 +132,12 @@ def pipeline(
     test_dataset = test_dataset.select(range(max_samples))
 
     if resume_from_record:
+        print('Trying to resume the run ... ')
         success_ids = get_success_record_ids(records_path=record_path, task_type=task_class.lower())
         unsuccess_ids = set(range(len(test_dataset))) - set(success_ids)
         test_dataset = test_dataset.select(unsuccess_ids)
         if len(test_dataset) == 0:
-            raise
+            raise('Run already finished ...')
 
         record_path = f"{record_path}_resume"
         
@@ -192,7 +192,7 @@ def pipeline(
     if resume_from_record:
         eval_paths = [record_path.split('resume')[0][:-1], record_path]
         print('merge evals')
-        records = merge_evals(task_class=task_class, eval_name=eval_name, max_samples= max_samples, evals_record_paths=eval_paths)
+        records = merge_evals(task_class=task_class, eval_name=eval_name, evals_record_paths=eval_paths)
         with open(f'{BASE_PATH}/eval_results/{eval_name}_full.jsonl', 'w') as f:
             for sample in records:
                 f.write(json.dumps(sample) + "\n")

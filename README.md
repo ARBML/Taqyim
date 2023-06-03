@@ -1,6 +1,6 @@
-# Tqeem
+# Tqeem تقييم
 
-Example for running eval ... 
+An example for resuming an eval ...
 
 ```python
 
