@@ -1,5 +1,4 @@
-# AraOAEval
-AraEval
+# Tqeem
 
 Example for running eval ... 
 
