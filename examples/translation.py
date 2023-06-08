@@ -1,0 +1,27 @@
+import taqyim as tq
+
+def map_labels(sample):
+    if sample["label"] == "1":
+        sample["label"] = "Positive"
+    else:
+        sample["label"] = "Negative"
+    return sample
+
+prompt = """
+Translate the following statement from Arabic to Russian
+""".strip()
+
+tq.pipeline(
+    eval_name = "tatoeba-test",
+    dataset_name= "Helsinki-NLP/tatoeba_mt",
+    subset = "ara-rus",
+    task_class= "translate",
+    task_description = "Translation from Russian to Arabic",
+    input_column_name = 'sourceString',
+    target_column_name = 'targetString',
+    prompt=prompt,
+    api_key='<openai-key>',
+    train_split="validation",
+    test_split="test",
+    model_name = "gpt-3.5-turbo-0301",
+    max_samples= 1,)

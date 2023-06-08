@@ -3,10 +3,10 @@ import datasets
 import json
 import os
 from pathlib import Path
-from datasets import Value
+from datasets import Value, Sequence
 
-metrics = {'classification':['accuracy']}
-
+metrics = {'classification':['accuracy'], 'tagging':['accuracy']}
+task_eval_names = {'pos_tagging': 'tagging', 'classification':'classification'}
 BASE_PATH = Path.home()/".evals"
 
 # sys_msg = "Respond only positive or negative sentiment: "
@@ -16,17 +16,17 @@ def create_chat_prompt(sys_msg, input_text):
         {"role": "user", "content": input_text}
     ]
 
-def create_chat_example(content, label):
+def create_chat_example(content, label, sequence_tagging = False):
     return [
         {"role": "system", "content": content, "name": "example_user"},
         {"role": "system", "content": label, "name": "example_assistant"},
     ]
 
-def merge_evals(task_class, eval_name, evals_record_paths =[]):
+def merge_evals(task_class, eval_name, evals_record_paths =[], unsuccess_ids = []):
     out_records = []
     curr_sample_id = 0
-    curr_event_id = 0 
-    for record_path in evals_record_paths:
+    curr_event_id = 0
+    for record_id, record_path in enumerate(evals_record_paths):
         with open(record_path, "r") as records_file:
             records_str = records_file.read().splitlines()
             records = [json.loads(record_str) for record_str in records_str]
@@ -39,6 +39,7 @@ def merge_evals(task_class, eval_name, evals_record_paths =[]):
             records = list(filter(lambda record: "type" in record.keys(), records)) #extract records with types
             task_records = list(filter(lambda record: record["type"] == task_class, records)) #extract records with types
             
+            
             for i in range(len(task_records)):
                 # filter the records containing the sample id
                 sample_id_records = list(filter(lambda record: record["sample_id"] == f'{eval_name}.test.{i}', records))
@@ -46,11 +47,21 @@ def merge_evals(task_class, eval_name, evals_record_paths =[]):
                 sample_id_record_copy = {}
                 for sample_id_record in sample_id_records:
                     sample_id_record_copy = dict(sample_id_record) # don't modify a dict inside a for loop 
-                    sample_id_record_copy['sample_id'] = f"{eval_name}.test.{curr_sample_id}"
+                    if record_id > 0:
+                        if i < len(unsuccess_ids):
+                             sample_id_record_copy['sample_id'] = f"{eval_name}.test.{unsuccess_ids[i]}"
+                        else:
+                            sample_id_record_copy['sample_id'] = f"{eval_name}.test.{curr_sample_id}"
+                    else:
+                        sample_id_record_copy['sample_id'] = f"{eval_name}.test.{i}"
+
                     sample_id_record_copy['event_id'] = curr_event_id
                     curr_event_id += 1
                     out_records.append(sample_id_record_copy)
-                curr_sample_id += 1
+
+                if len(sample_id_records) > 1:
+                    curr_sample_id += 1
+                        
 
     final_report =  {metric: 0.0 for metric in metrics[task_class]}
     task_metrics = metrics[task_class]
@@ -61,13 +72,6 @@ def merge_evals(task_class, eval_name, evals_record_paths =[]):
 
     out_records.append({'final_report':final_report})
     return out_records
-
-def cast_features(dataset, features= []):
-    new_features = dataset.features.copy()
-    for feature in features:
-        new_features[feature] = Value(dtype='string', id=None)
-    dataset = dataset.cast(new_features)
-    return dataset
 
 def get_success_record_ids(records_path, task_type = "classification"):
     with open(records_path, "r") as records_file:
@@ -89,6 +93,17 @@ def get_success_record_ids(records_path, task_type = "classification"):
     ]
     return sorted(set(success_ids))
 
+def cast_features(dataset, features= []):
+    new_features = dataset.features.copy()
+    lst_features = []
+    for feature in features:
+        if isinstance(dataset[feature][0], list):
+            new_features[feature] = Sequence(Value(dtype='string', id=None))
+        else:
+            new_features[feature] = Value(dtype='string', id=None)
+    dataset = dataset.cast(new_features)
+    return dataset
+
 def pipeline(
     eval_name, 
     task_class,   
@@ -97,8 +112,7 @@ def pipeline(
     prompt,
     api_key,
     dataset_name,
-    preprocessing_input_fn=None,
-    preprocessing_target_fn=None,
+    preprocessing_fn=None,
     train_split="train",
     test_split=None,
     threads = 1,
@@ -108,7 +122,8 @@ def pipeline(
     temperature = 0.0,
     task_description ='',
     num_few_shot=0,
-    resume_from_record = False
+    resume_from_record = False,
+    subset = None,
 ):
 
     os.system(f'mkdir -p {BASE_PATH}')
@@ -121,40 +136,40 @@ def pipeline(
     os.system(f'mkdir -p {BASE_PATH}/data/{eval_name}')
     data_path = f'{BASE_PATH}/data/{eval_name}'
     
-
-    train_dataset = datasets.load_dataset(dataset_name, split=train_split)
-    if test_split is not None:
-        test_dataset = datasets.load_dataset(dataset_name, split=test_split)
+    if subset is not None:
+        train_dataset = datasets.load_dataset(dataset_name, subset, split=train_split)
+        if test_split is not None:
+            test_dataset = datasets.load_dataset(dataset_name, subset, split=test_split)
+    else:
+        train_dataset = datasets.load_dataset(dataset_name, split=train_split)
+        if test_split is not None:
+            test_dataset = datasets.load_dataset(dataset_name, split=test_split)
     
     if max_samples == -1:
         max_samples = len(test_dataset)
     
     test_dataset = test_dataset.select(range(max_samples))
+    unsuccess_ids = []
 
     if resume_from_record:
         print('Trying to resume the run ... ')
-        success_ids = get_success_record_ids(records_path=record_path, task_type=task_class.lower())
-        unsuccess_ids = set(range(len(test_dataset))) - set(success_ids)
+        success_ids = get_success_record_ids(records_path=record_path, task_type=task_eval_names[task_class.lower()])
+        unsuccess_ids = sorted(set(range(len(test_dataset))) - set(success_ids))
+
+        print(unsuccess_ids)
         test_dataset = test_dataset.select(unsuccess_ids)
         if len(test_dataset) == 0:
             raise('Run already finished ...')
 
         record_path = f"{record_path}_resume"
-        
-
 
     # Convert the input and target features
     train_dataset = cast_features(train_dataset, features = [input_column_name, target_column_name])
-    test_dataset = cast_features(test_dataset, features = [input_column_name, target_column_name])
+    test_dataset = cast_features(test_dataset, features = [input_column_name, target_column_name])    
     
-    if preprocessing_input_fn is not None:
-        train_dataset = train_dataset.map(preprocessing_input_fn)
-        test_dataset = test_dataset.map(preprocessing_input_fn)
-    
-    if preprocessing_target_fn is not None:
-        train_dataset = train_dataset.map(preprocessing_target_fn)
-        test_dataset = test_dataset.map(preprocessing_target_fn)
-    
+    if preprocessing_fn is not None:
+        train_dataset = train_dataset.map(preprocessing_fn)
+        test_dataset = test_dataset.map(preprocessing_fn)
 
     dev_df = train_dataset.to_pandas()
     dev_df["sample"] = dev_df.apply(lambda x: create_chat_example(x[input_column_name], x[target_column_name]), axis=1)
@@ -190,37 +205,10 @@ def pipeline(
                 --modelspec_extra_options temperature={temperature} --max_samples {max_samples} --record_path {record_path}")
 
     if resume_from_record:
+        merged_record_path = f'{BASE_PATH}/eval_results/{eval_name}_full.jsonl'
+        print('Merging evals to', merged_record_path)
         eval_paths = [record_path.split('resume')[0][:-1], record_path]
-        print('merge evals')
-        records = merge_evals(task_class=task_class, eval_name=eval_name, evals_record_paths=eval_paths)
-        with open(f'{BASE_PATH}/eval_results/{eval_name}_full.jsonl', 'w') as f:
+        records = merge_evals(task_class=task_eval_names[task_class], eval_name=eval_name, evals_record_paths=eval_paths, unsuccess_ids = unsuccess_ids)
+        with open(merged_record_path, 'w') as f:
             for sample in records:
-                f.write(json.dumps(sample) + "\n")
-
-def map_labels(sample):
-    if sample["label"] == "1":
-        sample["label"] = "Positive"
-    else:
-        sample["label"] = "Negative"
-    return sample
-
-pipeline(
-    eval_name = "ajgt2",
-    task_class= "classification",
-    task_description = "Arabic text classification",
-    input_column_name = 'text',
-    target_column_name = 'label',
-    prompt='What is the sentiment?',
-    api_key='<api-key>',
-    dataset_name="ajgt_twitter_ar",
-    preprocessing_input_fn=None,
-    preprocessing_target_fn=map_labels,
-    train_split="train",
-    test_split="train",
-    threads = 1,
-    threads_timeout=100,
-    model_name = "gpt-3.5-turbo-0301",
-    temperature = 0.0,
-    resume_from_record = True,
-    max_samples= 3
-)
+                f.write(json.dumps(sample, ensure_ascii = False) + "\n")

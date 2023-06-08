@@ -1,10 +1,3 @@
-# Taqyim تقييم
-
-A library for evaluting Arabic NLP datasets on chatgpt models. 
-
-An example for resuming an eval ...
-
-```python
 import taqyim as tq
 
 def map_labels(sample):
@@ -26,7 +19,7 @@ tq.pipeline(
     input_column_name = 'text',
     target_column_name = 'label',
     prompt=prompt,
-    api_key='<openai-key>,
+    api_key='<openai-key>',
     preprocessing_fn=map_labels,
     train_split="train",
     test_split="train",
@@ -36,9 +29,3 @@ tq.pipeline(
     temperature = 0.0,
     resume_from_record = False,
     max_samples= 1,)
-```
-
-## Supported Classes and Tasks
-* `Classification` classification tasks see [examples](examples/classification.py)
-* `Pos_Tagging` part of speech tagging tasks [examples](examples/pos_tagging.py)
-* `Translate` machine translation [examples](examples/translation.py)
