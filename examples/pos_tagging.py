@@ -1,3 +1,4 @@
+import taqyim as tq
 def map_fn(sample):
     TAGS = ["NOUN","PUNCT","ADP","NUM","SYM","SCONJ","ADJ","PART","DET","CCONJ","PROPN","PRON","X","_", "ADV","INTJ","VERB","AUX"]
     tag_names_to_labels = {tag_name: tag_label for tag_label, tag_name in enumerate(TAGS)}
@@ -29,23 +30,22 @@ Please note that I tokenized the sentence for you. Please do not change, add, co
 Please give me the generated table and that is it. No further discussion, explanation or extrapolation required.
 """.strip()
 
-pipeline(
+pipeline = tq.Pipeline(
     eval_name = "padt-test",
     task_class= "pos_tagging",
     task_description = "Arabic text PoS tagging",
     input_column_name = 'tokens',
     target_column_name = 'upos',
     prompt=prompt,
-    api_key='<openai-key>',
+    api_key='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',
     dataset_name="universal_dependencies",
     preprocessing_fn=map_fn,
     train_split="train",
     test_split="test",
-    threads = 1,
-    threads_timeout=100,
-    model_name = "gpt-4-0314",
-    temperature = 0.0,
-    resume_from_record = False,
-    max_samples= 680,
+    model_name = "gpt-3.5-turbo-0301",
+    max_samples= 2,
     subset= "ar_padt",
 )
+
+pipeline.run()
+print(pipeline.show_results())

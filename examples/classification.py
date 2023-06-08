@@ -11,7 +11,7 @@ prompt = """
 Predict the sentiment of the following statement in Arabic
 """.strip()
 
-tq.pipeline(
+pipeline = tq.Pipeline(
     eval_name = "ajgt-test",
     dataset_name="ajgt_twitter_ar",
     task_class= "classification",
@@ -19,13 +19,12 @@ tq.pipeline(
     input_column_name = 'text',
     target_column_name = 'label',
     prompt=prompt,
-    api_key='<openai-key>',
+    api_key='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',
     preprocessing_fn=map_labels,
     train_split="train",
     test_split="train",
-    threads = 1,
-    threads_timeout=100,
     model_name = "gpt-3.5-turbo-0301",
-    temperature = 0.0,
-    resume_from_record = False,
-    max_samples= 1,)
+    max_samples= 2,)
+
+pipeline.run()
+print(pipeline.show_results())
