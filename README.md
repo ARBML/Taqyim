@@ -2,7 +2,13 @@
 
 A library for evaluting Arabic NLP datasets on chatgpt models. 
 
-An example for resuming an eval ...
+## Installation
+
+```
+pip install -e .
+```
+
+## Example 
 
 ```python
 import taqyim as tq
