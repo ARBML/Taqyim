@@ -6,8 +6,8 @@ from pathlib import Path
 from datasets import Value, Sequence
 import pandas as pd
 
-metrics = {'classification':['accuracy'], 'tagging':['accuracy'], 'translate':['sacrebleu_sentence_score']}
-task_eval_names = {'pos_tagging': 'tagging', 'classification':'classification', 'translate':'metrics'}
+metrics = {'classification':['accuracy'], 'tagging':['accuracy'], 'translation':['sacrebleu_sentence_score'], 'summarization':['rouge1', 'rougeL'], 'diacritization':['']}
+task_eval_names = {'pos_tagging': 'tagging', 'classification':'classification', 'translation':'metrics', 'summarization':'summarization', 'diacritization':''}
 BASE_PATH = Path.home()/".evals"
 
 
@@ -141,19 +141,23 @@ class Pipeline:
             with open(self.merged_record_path, 'w') as f:
                 for sample in records:
                     f.write(json.dumps(sample, ensure_ascii = False) + "\n")
-    
-    def show_results(self):
+        
         if self.resume_from_record:
             with open(self.merged_record_path, "r") as f:
-                events_df = pd.read_json(f, lines=True)
+                self.events_df = pd.read_json(f, lines=True)
         else:
             with open(self.record_path, "r") as f:
-                events_df = pd.read_json(f, lines=True)
-        
+                self.events_df = pd.read_json(f, lines=True)
+    
+    def get_final_report(self):
+        return self.events_df[self.events_df["final_report"].notnull()]["final_report"].to_list()
+
+    def show_results(self):
+
         prompts = []
         samples = []
         
-        for i, r in pd.json_normalize(events_df[events_df.type == "sampling"].data).iterrows():
+        for i, r in pd.json_normalize(self.events_df[self.events_df.type == "sampling"].data).iterrows():
             prompts.append(r.prompt[-1]['content'])
             samples.append(r.sampled)
         return pd.DataFrame({'prompt': prompts, 'Sample':samples})
