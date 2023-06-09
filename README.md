@@ -83,3 +83,19 @@ pipeline.get_final_report()
 * `Translation` machine translation [translation.py](examples/translation.py).
 * `Summarization` machine translation [summarization.py](examples/summarization.py).
 * `Diacritization` machine translation [diacritization.py](examples/diacritization.py).
+
+# Evaluation on Arabic Tasks 
+
+|Tasks              |Dataset        |Size       |Metrics	    |GPT-3.5 	    |GPT-4      |SoTA|
+| :---              | :---:         | :---:     | :---:         | :---:         | :---:     |:---:|
+|Summarization      |[EASC](https://huggingface.co/datasets/arbml/EASC)	        |153	    |RougeL	        |23.5		    |18.25	    |62.98|
+|PoS Tagging	    |[PADT](https://huggingface.co/datasets/universal_dependencies/viewer/ar_padt/train)	        |680        |Accuracy	    |75.91		    |86.29	    |97.00|
+|classification	    |[AJGT](https://huggingface.co/datasets/ajgt_twitter_ar)	        |360        |Accuracy	    |87.77		    |91.13	    |96.11|	
+|transliteration	|[BOLT Egyptian](https://catalog.ldc.upenn.edu/LDC2021T17)✢  |6,653      |BLEU           |13.76		    |27.66	    |58.70|
+|translation	    |[UN v1](https://drive.google.com/file/d/13GI1F1hvwpMUGBSa0QC6ov4eE57GC_Zx/view)          |4,000	    |BLEU	        |35.05		    |38.83	    |53.29|
+|Paraphrasing	    |[APB](https://github.com/marwah2001/Arabic-Paraphrasing-Benchmark)	        |1,010      |BLEU	        |4.295		    |6.104	    |17.52|
+|Diacritization	    |[WikiNews]()✢✢      |18,286	    |WER/DER	    |32.74/10.29	| -		    |12.76/3.54|
+
+✢ BOLT requires LDC subscription
+
+✢✢ WikiNews not public, contact uthors to access the dataset
