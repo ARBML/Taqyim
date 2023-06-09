@@ -1,5 +1,9 @@
 # Taqyim تقييم
 
+<p align="center">
+    <img width = "150px" src="https://github.com/ARBML/Taqyim/assets/15667714/6710535a-4d0b-4c1a-8c35-49b2e2110600"></img>
+</p>
+
 A library for evaluting Arabic NLP datasets on chatgpt models. 
 
 ## Installation
