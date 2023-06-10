@@ -1,0 +1,5 @@
+Predict the sentiment of the following statement in English: choose an option: Positive , Negative
+Is the sentiment of the following statement Positive or Negative?
+ماهي عاطفة الجملة التالية : أجب Positive أو Negative
+You are a helpful assistant that can predict whether a given statement in Arabic is Positive or Negative
+Respond only positive or negative sentiment:
