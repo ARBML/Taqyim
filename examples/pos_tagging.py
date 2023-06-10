@@ -33,7 +33,7 @@ Please give me the generated table and that is it. No further discussion, explan
 pipeline = tq.Pipeline(
     eval_name = "padt-test",
     task_class= "pos_tagging",
-    task_description = "Arabic text PoS tagging",
+    task_desc = "Arabic text PoS tagging",
     input_column_name = 'tokens',
     target_column_name = 'upos',
     prompt=prompt,

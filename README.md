@@ -13,7 +13,6 @@ pip install -e .
 ```python
 import taqyim as tq
 
-# map the labels to positive and negative
 def map_labels(sample):
     if sample["label"] == "1":
         sample["label"] = "Positive"
@@ -21,21 +20,20 @@ def map_labels(sample):
         sample["label"] = "Negative"
     return sample
 
-# create the eval class
 pipeline = tq.Pipeline(
-    eval_name = "ajgt-test",
+    eval_name="ajgt-test",
     dataset_name="ajgt_twitter_ar",
-    task_class= "classification",
-    task_description = "Arabic text sentiment analysis",
-    input_column_name = 'text',
-    target_column_name = 'label',
-    prompt="Predict the sentiment of the following statement in Arabic",
-    api_key='<openai-key>,
+    task_class="classification",
+    task_desc= "Sentiment Analysis",
+    input_column_name="text",
+    target_column_name="label",
+    prompt="Predict the sentiment",
+    api_key="<openai-key>",
     preprocessing_fn=map_labels,
     train_split="train",
     test_split="train",
-    model_name = "gpt-3.5-turbo-0301",
-    max_samples= 1,)
+    model_name="gpt-3.5-turbo-0301",
+    max_samples=1,)
 
 # run the evaluation
 pipeline.run()
@@ -57,6 +55,7 @@ pipeline.get_final_report()
 
 -    `eval_name` choose an eval name
 -    `task_class` class name from supported class names
+-    `task_desc`short description of the task
 -    `dataset_name` dataset name for evaluation
 -    `subset` If the dataset has subset
 -    `train_split` train split name in the dataset
@@ -64,7 +63,7 @@ pipeline.get_final_report()
 -    `input_column_name` input column name in the dataset
 -    `target_column_name` target column name in the dataset
 -    `prompt` the prompt to be fed to the model
--    `task_description` short string explaining the task
+-    `task_desc` short string explaining the task
 -    `api_key` api key from [keys](https://platform.openai.com/account/api-keys)
 -    `preprocessing_fn` function used to process inputs and targets 
 -    `threads` number of threads used to fetch the api

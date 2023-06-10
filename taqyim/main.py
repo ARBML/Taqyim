@@ -29,7 +29,7 @@ class Pipeline:
         max_samples = -1,
         model_name = "gpt-3.5-turbo-0301",
         temperature = 0.0,
-        task_description ='',
+        task_desc ='',
         num_few_shot=0,
         resume_from_record = False,
         subset = None,
@@ -50,7 +50,7 @@ class Pipeline:
         self.max_samples = max_samples
         self.model_name = model_name
         self.temperature = temperature
-        self.task_description = task_description
+        self.task_desc = task_desc
         self.num_few_shot = num_few_shot
         self.resume_from_record = resume_from_record
         self.subset = subset
@@ -116,7 +116,7 @@ class Pipeline:
         specs = f"""
     {self.eval_name}:
         id: {self.eval_name}.test.v1
-        description: {self.task_description}
+        description: {self.task_desc}
 {self.eval_name}.test.v1:
     class: evals.elsuite.{self.task_class.lower()}:{self.task_class.lower().title()}
     args:
