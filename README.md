@@ -101,4 +101,4 @@ pipeline.get_final_report()
 
 ✢ BOLT requires LDC subscription
 
-✢✢ WikiNews not public, contact uthors to access the dataset
+✢✢ WikiNews not public, contact [authors](https://aclanthology.org/W17-1302/) to access the dataset
