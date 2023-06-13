@@ -16,7 +16,7 @@ for i, prompt in enumerate(prompts):
         input_column_name = 'content',
         target_column_name = 'label',
         prompt=prompt,
-        api_key='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',
+        api_key='<openai-key>',
         train_split="train",
         test_split="test",
         model_name = "gpt-4-0314",
