@@ -16,33 +16,24 @@ pip install -e .
 
 ```python
 import taqyim as tq
-
-def map_labels(sample):
-    if sample["label"] == "1":
-        sample["label"] = "Positive"
-    else:
-        sample["label"] = "Negative"
-    return sample
-
 pipeline = tq.Pipeline(
     eval_name="ajgt-test",
-    dataset_name="ajgt_twitter_ar",
+    dataset_name="arbml/ajgt_ubc_split",
     task_class="classification",
     task_description= "Sentiment Analysis",
-    input_column_name="text",
+    input_column_name="content",
     target_column_name="label",
     prompt="Predict the sentiment",
     api_key="<openai-key>",
-    preprocessing_fn=map_labels,
     train_split="train",
-    test_split="train",
+    test_split="test",
     model_name="gpt-3.5-turbo-0301",
     max_samples=1,)
 
 # run the evaluation
 pipeline.run()
 
-# show the results
+# show the output data frame
 pipeline.show_results()
 
 # show the eval metrics
