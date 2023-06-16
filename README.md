@@ -88,7 +88,7 @@ pipeline.get_final_report()
 |transliteration	|[BOLT Egyptian](https://catalog.ldc.upenn.edu/LDC2021T17)✢  |6,653      |BLEU           |13.76		    |27.66	    |58.70|
 |translation	    |[UN v1](https://drive.google.com/file/d/13GI1F1hvwpMUGBSa0QC6ov4eE57GC_Zx/view)          |4,000	    |BLEU	        |35.05		    |38.83	    |53.29|
 |Paraphrasing	    |[APB](https://github.com/marwah2001/Arabic-Paraphrasing-Benchmark)	        |1,010      |BLEU	        |4.295		    |6.104	    |17.52|
-|Diacritization	    |[WikiNews]()✢✢      |18,286	    |WER/DER	    |32.74/10.29	| 38.06/11.64		   |12.76/3.54|
+|Diacritization	    |[WikiNews](https://aclanthology.org/W17-1302/)✢✢      |18,286	    |WER/DER	    |32.74/10.29	| 38.06/11.64		   |4.49/1.21|
 
 ✢ BOLT requires LDC subscription
 
