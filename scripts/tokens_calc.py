@@ -1,6 +1,7 @@
 import pandas as pd
 import tiktoken
 from datasets import load_dataset
+from pyarabic import araby 
 
 def main():
     model = 'gpt-4' # 'gpt-3.5' encoder is same as 'gpt-4'
@@ -13,6 +14,7 @@ def main():
     padt_tokens = get_padt_tokens(encoder)
     unv1_tokens = get_unv1_tokens(encoder)
     bolt_tokens = get_bolt_tokens(encoder)
+    wikinews_tokens = get_wikinews_tokens(encoder)
 
     print(f'EASC: {easc_tokens:,}')
     print(f'AJGT: {ajgt_tokens:,}')
@@ -20,7 +22,8 @@ def main():
     print(f'APB: {apb_tokens:,}')
     print(f'UNv1: {unv1_tokens:,}')
     print(f'BOLT: {bolt_tokens:,}')
-    print(f'Total: {ajgt_tokens + apb_tokens + easc_tokens + padt_tokens  + unv1_tokens + bolt_tokens}')
+    print(f'WikiNews: {wikinews_tokens:,}')
+    print(f'Total: {ajgt_tokens + apb_tokens + easc_tokens + padt_tokens  + unv1_tokens + bolt_tokens + wikinews_tokens}')
 
 
 def get_bolt_tokens(encoder):
@@ -107,6 +110,17 @@ def get_unv1_tokens(encoder):
 
     tokens_count = 0
 
+    for element in lines:
+        tokens_count += len(encoder.encode(element.strip()))
+
+    return tokens_count
+
+def get_wikinews_tokens(encoder):
+    path = "WikiNewsTruth.txt.diac"
+    with open(path, 'r', encoding="utf-8") as fp:
+        lines = list(map(araby.strip_tashkeel, fp.readlines()))
+    
+    tokens_count = 0
     for element in lines:
         tokens_count += len(encoder.encode(element.strip()))
 
