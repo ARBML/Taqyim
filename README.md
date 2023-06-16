@@ -43,7 +43,7 @@ pipeline.get_final_report()
 
 ## Run on custom dataset
 
-[custom_dataset.ipynb](custom_dataset.ipynb) has a complete example on how to run evaluation on a custom dataset. 
+[custom_dataset.ipynb](notebooks/custom_dataset.ipynb) has a complete example on how to run evaluation on a custom dataset. 
 
 
 ## parameters
