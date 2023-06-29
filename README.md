@@ -82,14 +82,25 @@ pipeline.get_final_report()
 
 |Tasks              |Dataset        |Size       |Metrics	    |GPT-3.5 	    |GPT-4      |SoTA|
 | :---              | :---:         | :---:     | :---:         | :---:         | :---:     |:---:|
-|Summarization      |[EASC](https://huggingface.co/datasets/arbml/EASC)	        |153	    |RougeL	        |23.5		    |18.25	    |62.98|
-|PoS Tagging	    |[PADT](https://huggingface.co/datasets/universal_dependencies/viewer/ar_padt/train)	        |680        |Accuracy	    |75.91		    |86.29	    |97.00|
-|classification	    |[AJGT](https://huggingface.co/datasets/ajgt_twitter_ar)	        |360        |Accuracy	    |87.77		    |91.13	    |96.11|	
-|transliteration	|[BOLT Egyptian](https://catalog.ldc.upenn.edu/LDC2021T17)✢  |6,653      |BLEU           |13.76		    |27.66	    |58.70|
+|Summarization      |[EASC](https://huggingface.co/datasets/arbml/EASC)	        |153	    |RougeL	        |23.5		    |18.25	    |13.3|
+|PoS Tagging	    |[PADT](https://huggingface.co/datasets/universal_dependencies/viewer/ar_padt/train)	        |680        |Accuracy	    |75.91		    |86.29	    |96.83|
+|classification	    |[AJGT](https://huggingface.co/datasets/ajgt_twitter_ar)	        |360        |Accuracy	    |86.94		    |90.30	    |96.11|	
+|transliteration	|[BOLT Egyptian](https://catalog.ldc.upenn.edu/LDC2021T17)✢  |6,653      |BLEU           |13.76		    |27.66	    |65.88|
 |translation	    |[UN v1](https://drive.google.com/file/d/13GI1F1hvwpMUGBSa0QC6ov4eE57GC_Zx/view)          |4,000	    |BLEU	        |35.05		    |38.83	    |53.29|
 |Paraphrasing	    |[APB](https://github.com/marwah2001/Arabic-Paraphrasing-Benchmark)	        |1,010      |BLEU	        |4.295		    |6.104	    |17.52|
-|Diacritization	    |[WikiNews](https://aclanthology.org/W17-1302/)✢✢      |18,286	    |WER/DER	    |32.74/10.29	| 38.06/11.64		   |4.49/1.21|
+|Diacritization	    |[WikiNews](https://aclanthology.org/W17-1302/)✢✢      |393	    |WER/DER	    |32.74/10.29	| 38.06/11.64		   |4.49/1.21|
 
 ✢ BOLT requires LDC subscription
 
 ✢✢ WikiNews not public, contact [authors](https://aclanthology.org/W17-1302/) to access the dataset
+
+```
+@misc{alyafeai2023taqyim,
+      title={Taqyim: Evaluating Arabic NLP Tasks Using ChatGPT Models}, 
+      author={Zaid Alyafeai and Maged S. Alshaibani and Badr AlKhamissi and Hamzah Luqman and Ebrahim Alareqi and Ali Fadel},
+      year={2023},
+      eprint={2306.16322},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
+```
