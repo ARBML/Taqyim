@@ -29,7 +29,7 @@ class Pipeline:
         max_samples = -1,
         model_name = "gpt-3.5-turbo-0301",
         temperature = 0.0,
-        task_desc ='',
+        task_description ='',
         num_few_shot=0,
         resume_from_record = False,
         subset = None,
@@ -50,7 +50,7 @@ class Pipeline:
         self.max_samples = max_samples
         self.model_name = model_name
         self.temperature = temperature
-        self.task_desc = task_desc
+        self.task_desc = task_description
         self.num_few_shot = num_few_shot
         self.resume_from_record = resume_from_record
         self.subset = subset
