@@ -1,7 +1,7 @@
 import taqyim as tq
 
 prompt = """
-Add diacritics to the follwing statement in Arabic
+Add diacritics to the following statement in Arabic
 """.strip()
 
 pipeline = tq.Pipeline(
