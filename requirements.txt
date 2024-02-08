@@ -1,5 +1,5 @@
 pandas==1.3.5
-datasets==2.12.0
+datasets==2.16.1
 evals @ git+https://github.com/ARBML/evals
 tiktoken
 pyarabic
