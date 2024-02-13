@@ -17,10 +17,10 @@ class Pipeline:
         eval_name, 
         task_class,   
         input_column_name,
-        target_column_name,
         prompt,
         api_key,
         dataset_name,
+        target_column_name = None,
         preprocessing_fn=None,
         train_split="train",
         test_split=None,
@@ -92,13 +92,18 @@ class Pipeline:
 
             self.record_path = f"{self.record_path}_resume"
 
-        # Convert the input and target features
-        train_dataset = self.cast_features(train_dataset, features = [self.input_column_name, self.target_column_name])
-        test_dataset = self.cast_features(test_dataset, features = [self.input_column_name, self.target_column_name])    
-        
         if self.preprocessing_fn is not None:
             train_dataset = train_dataset.map(self.preprocessing_fn)
             test_dataset = test_dataset.map(self.preprocessing_fn)
+
+        # Convert the input and target features
+            
+        features = [self.input_column_name]
+        if self.target_column_name:
+            features.append(self.target_column_name)
+
+        train_dataset = self.cast_features(train_dataset, features = features)
+        test_dataset = self.cast_features(test_dataset, features = features)    
 
         dev_df = train_dataset.to_pandas()
         dev_df["sample"] = dev_df.apply(lambda x: self.create_chat_example(x), axis=1)
@@ -106,8 +111,11 @@ class Pipeline:
 
         test_df = test_dataset.to_pandas()
         test_df["input"] = test_df[self.input_column_name].apply(lambda x: self.create_chat_prompt(x))
-        test_df["ideal"] = test_df[self.target_column_name]
-        test_df[["input", "ideal"]].to_json(f'{data_path}/samples.jsonl', lines=True, orient="records",force_ascii=False)
+        if self.target_column_name:
+            test_df["ideal"] = test_df[self.target_column_name]
+            test_df[["input", "ideal"]].to_json(f'{data_path}/samples.jsonl', lines=True, orient="records",force_ascii=False)
+        else:
+            test_df[["input"]].to_json(f'{data_path}/samples.jsonl', lines=True, orient="records",force_ascii=False)
 
         os.environ["OPENAI_API_KEY"] = self.api_key
         os.environ["EVALS_THREADS"]=f"{self.threads}"
@@ -169,10 +177,15 @@ class Pipeline:
         ]
 
     def create_chat_example(self, x):
-        return [
-            {"role": "system", "content": x[self.input_column_name], "name": "example_user"},
-            {"role": "system", "content": x[self.target_column_name], "name": "example_assistant"},
-        ]
+        if self.target_column_name:
+            return [
+                {"role": "system", "content": x[self.input_column_name], "name": "example_user"},
+                {"role": "system", "content": x[self.target_column_name], "name": "example_assistant"},
+            ]
+        else:
+            return [
+                {"role": "system", "content": x[self.input_column_name], "name": "example_user"},
+            ]
 
     def merge_evals(self, evals_record_paths =[], task_type = ""):
         out_records = []

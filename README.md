@@ -50,7 +50,7 @@ pipeline.get_final_report()
 
 -    `eval_name` choose an eval name
 -    `task_class` class name from supported class names
--    `task_desc` short description about the task
+-    `task_description` short description about the task
 -    `dataset_name` dataset name for evaluation
 -    `subset` If the dataset has subset
 -    `train_split` train split name in the dataset
@@ -76,6 +76,8 @@ pipeline.get_final_report()
 * `Pos_Tagging` part of speech tagging tasks [pos_tagging.py](examples/pos_tagging.py).
 * `Translation` machine translation [translation.py](examples/translation.py).
 * `Summarization` machine translation [summarization.py](examples/summarization.py).
+* `MCQ` multiple choice question answering [mcq.py](examples/mcq.py).
+* `Rating` rating multiple LLMs outputs [rating.py](examples/rating.py).
 * `Diacritization` machine translation [diacritization.py](examples/diacritization.py).
 
 # Evaluation on Arabic Tasks 

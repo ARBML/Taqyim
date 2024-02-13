@@ -9,7 +9,7 @@ for temp in temps:
         eval_name = f"ajgt-temp-gpt-4-{temp}",
         dataset_name="arbml/ajgt_ubc_split",
         task_class= "classification",
-        task_desc = "Arabic text sentiment analysis",
+        task_description = "Arabic text sentiment analysis",
         input_column_name = 'content',
         target_column_name = 'label',
         prompt=prompt,
